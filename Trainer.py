@@ -53,7 +53,7 @@ class Model:
         if rank <= 0 :
             if name is None:
                 name = self.name
-            param = torch.load(f'/kaggle/input/emacode/ckpt/{name}.pkl')
+            param = torch.load(f'/kaggle/input/emacode/ckpt/ours_raw.pkl')
             self.net.load_state_dict(convert(param))
             print(f"loaded model ckpt/{name}.pkl")
     
