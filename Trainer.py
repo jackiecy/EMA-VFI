@@ -59,7 +59,7 @@ class Model:
     
     def save_model(self, rank=0):
         if rank == 0:
-            torch.save(self.net.state_dict(),f'ckpt/{self.name}.pkl')
+            torch.save(self.net.state_dict(),f'ckpt/ours.pkl')
 
     @torch.no_grad()
     def hr_inference(self, img0, img1, TTA = False, down_scale = 1.0, timestep = 0.5, fast_TTA = False):
