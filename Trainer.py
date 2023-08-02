@@ -4,6 +4,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.optim import AdamW
 from model.loss import *
 from model.warplayer import warp
+import lpips
 
 from config import *
 
@@ -19,8 +20,9 @@ class Model:
         # train
         self.optimG = AdamW(self.net.parameters(), lr=2e-4, weight_decay=1e-4)
         self.lap = LapLoss()
-        if local_rank != -1:
-            self.net = DDP(self.net, device_ids=[local_rank], output_device=local_rank)
+        # self.lpips = lpips.LPIPS(net='vgg').to(device)
+        # if local_rank != -1:
+        #     self.net = DDP(self.net, device_ids=[local_rank], output_device=local_rank)
 
     def train(self):
         self.net.train()
@@ -32,16 +34,28 @@ class Model:
         self.net.to(torch.device("cuda"))
 
     def load_model(self, name=None, rank=0):
+        nk = ['feature_bone.block4.1.attn_mask', "feature_bone.block4.1.HW", "feature_bone.block4.3.attn_mask", "feature_bone.block4.3.HW", "feature_bone.block5.1.attn_mask", "feature_bone.block5.1.HW", "feature_bone.block5.3.attn_mask", "feature_bone.block5.3.HW"]
         def convert(param):
-            return {
-            k.replace("module.", ""): v
-                for k, v in param.items()
-                if "module." in k and 'attn_mask' not in k and 'HW' not in k
-            }
+            # print("feature_bone.block4.1.attn_mask" in param)
+            d = {}
+            for k in param:
+                d[k.replace("module.", "")] = param[k]
+            param = d
+            for k in nk:
+                if k in param:
+                    del param[k]
+            return param
+            # return {
+            # k.replace("module.", ""): v
+            #     for k, v in param.items()
+            #     if "module." in k and 'attn_mask' not in k and 'HW' not in k
+            # }
         if rank <= 0 :
             if name is None:
                 name = self.name
-            self.net.load_state_dict(convert(torch.load(f'ckpt/{name}.pkl')))
+            param = torch.load(f'ckpt/{name}.pkl')
+            self.net.load_state_dict(convert(param))
+            print(f"loaded model ckpt/{name}.pkl")
     
     def save_model(self, rank=0):
         if rank == 0:
@@ -151,10 +165,10 @@ class Model:
         if training:
             flow, mask, merged, pred = self.net(imgs)
             loss_l1 = (self.lap(pred, gt)).mean()
+            # loss_l1 += self.lpips(pred, gt).mean() * 0.1
 
             for merge in merged:
                 loss_l1 += (self.lap(merge, gt)).mean() * 0.5
-
             self.optimG.zero_grad()
             loss_l1.backward()
             self.optimG.step()

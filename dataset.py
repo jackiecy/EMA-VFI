@@ -16,9 +16,9 @@ class VimeoDataset(Dataset):
         self.h = 256
         self.w = 448
         self.data_root = path
-        self.image_root = os.path.join(self.data_root, 'sequences')
-        train_fn = os.path.join(self.data_root, 'tri_trainlist.txt')
-        test_fn = os.path.join(self.data_root, 'tri_testlist.txt')
+        self.image_root = os.path.join(self.data_root, 'endoscopy')
+        train_fn = os.path.join(self.data_root, 'train.txt')
+        test_fn = os.path.join(self.data_root, 'test.txt')
         with open(train_fn, 'r') as f:
             self.trainlist = f.read().splitlines()
         with open(test_fn, 'r') as f:

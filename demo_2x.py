@@ -34,15 +34,15 @@ else:
         depth = [2, 2, 2, 4, 4]
     )
 model = Model(-1)
-model.load_model()
+model.load_model('ours_raw')
 model.eval()
 model.device()
 
 
 print(f'=========================Start Generating=========================')
 
-I0 = cv2.imread('example/img1.jpg')
-I2 = cv2.imread('example/img2.jpg') 
+I0 = cv2.imread('example/im6.png')
+I2 = cv2.imread('example/im8.png') 
 
 I0_ = (torch.tensor(I0.transpose(2, 0, 1)).cuda() / 255.).unsqueeze(0)
 I2_ = (torch.tensor(I2.transpose(2, 0, 1)).cuda() / 255.).unsqueeze(0)
@@ -51,8 +51,10 @@ padder = InputPadder(I0_.shape, divisor=32)
 I0_, I2_ = padder.pad(I0_, I2_)
 
 mid = (padder.unpad(model.inference(I0_, I2_, TTA=TTA, fast_TTA=TTA))[0].detach().cpu().numpy().transpose(1, 2, 0) * 255.0).astype(np.uint8)
-images = [I0[:, :, ::-1], mid[:, :, ::-1], I2[:, :, ::-1]]
-mimsave('example/out_2x.gif', images, fps=3)
+images = [mid[:, :, ::-1]]
+# images = [I0[:, :, ::-1], mid[:, :, ::-1], I2[:, :, ::-1]]
+
+mimsave('example/out_2x.png', images)
 
 
 print(f'=========================Done=========================')

@@ -18,7 +18,7 @@ from benchmark.utils.pytorch_msssim import ssim_matlab
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model', default='ours', type=str)
-parser.add_argument('--path', type=str, required=True)
+parser.add_argument('--path', default=r'E:\workspace-py\interpolation\dataset\vimeo_triplet', type=str, required=False)
 args = parser.parse_args()
 assert args.model in ['ours', 'ours_small'], 'Model not exists!'
 
@@ -47,15 +47,15 @@ model.device()
 print(f'=========================Starting testing=========================')
 print(f'Dataset: Vimeo90K   Model: {model.name}   TTA: {TTA}')
 path = args.path
-f = open(path + '/tri_testlist.txt', 'r')
+f = open(path + '/test.txt', 'r')
 psnr_list, ssim_list = [], []
 for i in f:
     name = str(i).strip()
     if(len(name) <= 1):
         continue
-    I0 = cv2.imread(path + '/sequences/' + name + '/im1.png')
-    I1 = cv2.imread(path + '/sequences/' + name + '/im2.png')
-    I2 = cv2.imread(path + '/sequences/' + name + '/im3.png') # BGR -> RBG
+    I0 = cv2.imread(path + '/endoscopy/' + name + '/im1.png')
+    I1 = cv2.imread(path + '/endoscopy/' + name + '/im2.png')
+    I2 = cv2.imread(path + '/endoscopy/' + name + '/im3.png') # BGR -> RBG
     I0 = (torch.tensor(I0.transpose(2, 0, 1)).cuda() / 255.).unsqueeze(0)
     I2 = (torch.tensor(I2.transpose(2, 0, 1)).cuda() / 255.).unsqueeze(0)
     mid = model.inference(I0, I2, TTA=TTA, fast_TTA=TTA)[0]
