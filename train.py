@@ -103,6 +103,6 @@ if __name__ == "__main__":
     torch.backends.cudnn.benchmark = True
     model = Model(args.local_rank)
     # print(model.net.state_dict().keys())
-    model.load_model("ours")
+    model.load_model("ours_raw")
     train(model, args.local_rank, args.batch_size, args.data_path)
 
