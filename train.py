@@ -29,7 +29,7 @@ def get_learning_rate(step):
 
 def train(model, local_rank, batch_size, data_path):
     if local_rank == 0:
-        writer = SummaryWriter(f'log/train_EMAVFI/{TIMESTAMP}')
+        writer = SummaryWriter(f'log/train5_EMAVFI/{TIMESTAMP}')
     step = 0
     nr_eval = 0
     best = 0
@@ -89,7 +89,7 @@ if __name__ == "__main__":
     parser.add_argument('--local_rank', default=0, type=int, help='local rank')
     parser.add_argument('--world_size', default=4, type=int, help='world size')
     parser.add_argument('--batch_size', default=8, type=int, help='batch size')
-    parser.add_argument('--data_path', default=r'endoscopy', type=str, help='data path of vimeo90k')
+    parser.add_argument('--data_path', default=r'/kaggle/input/emacode/endoscopy', type=str, help='data path of vimeo90k')
     args = parser.parse_args()
     # torch.distributed.init_process_group(backend="nccl", world_size=args.world_size)
     torch.cuda.set_device(args.local_rank)
